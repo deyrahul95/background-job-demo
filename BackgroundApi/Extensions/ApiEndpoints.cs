@@ -1,4 +1,5 @@
 using BackgroundApi.Services;
+using BackgroundApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackgroundApi.Extensions;
@@ -7,8 +8,11 @@ public static class ApiEndpoints
 {
     private const string HealthTag = "Health";
     private const string QueueTag = "Queue";
+    private const string OrderTag = "Order";
     private const string HealthRoute = "/api/health";
     private const string AddToQueueRoute = "/api/addToQueue/{count:int}";
+    private const string CreateOrderRoute = "/api/orders";
+    private const string GetOrderRoute = "/api/orders/{id:int}";
 
     public static WebApplication AddApiEndpoints(this WebApplication app)
     {
@@ -32,6 +36,27 @@ public static class ApiEndpoints
                 return Results.Accepted();
             })
             .WithTags(QueueTag);
+
+        // /api/orders
+        app.MapPost(
+            CreateOrderRoute,
+            async ([FromServices] IOrderService orderService, [FromBody] int itemCount) =>
+            {
+                var status = await orderService.CreateOrder(itemCount);
+                await Task.Delay(10);
+                return Results.Accepted();
+            })
+            .WithTags(OrderTag);
+
+        app.MapGet(
+            GetOrderRoute,
+            async ([FromServices] IOrderService orderService, int id) =>
+            {
+                var status = await orderService.GetOrder(id);
+                await Task.Delay(10);
+                return Results.Ok(new { Id = id, Status = status.ToString() });
+            })
+            .WithTags(OrderTag);
 
         return app;
     }
