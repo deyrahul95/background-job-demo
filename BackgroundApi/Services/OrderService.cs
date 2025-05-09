@@ -8,7 +8,7 @@ namespace BackgroundApi.Services;
 
 public class OrderService(
     IHttpContextAccessor httpContextAccessor,
-    ConcurrentDictionary<int, JobStatus> statusDictionary,
+    ConcurrentDictionary<int, JobStatusDto> statusDictionary,
     BackgroundQueueService<InventoryJob> queue,
     ILogger<OrderService> logger) : IOrderService
 {
@@ -35,10 +35,13 @@ public class OrderService(
         return Task.FromResult(JobStatus.Queue);
     }
 
-    public Task<JobStatus> GetOrder(int id)
+    public Task<JobStatusDto?> GetOrder(int id)
     {
         statusDictionary.TryGetValue(id, out var status);
-        logger.LogInformation("[OrderService] Order Id: {OrderId}, Status: {Status}", id, status);
+        logger.LogInformation(
+            "[OrderService] Order Id: {OrderId}, Status: {Status}",
+            id,
+            status?.Status.ToString() ?? "N/A");
         return Task.FromResult(status);
     }
 }

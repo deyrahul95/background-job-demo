@@ -9,7 +9,7 @@ public class QueueReaderOne(
     ILogger<QueueReaderOne> logger,
     BackgroundQueueService<InventoryJob> queue,
     IInventoryClient inventoryClient,
-    ConcurrentDictionary<int, JobStatus> statusDictionary) : BackgroundService
+    ConcurrentDictionary<int, JobStatusDto> statusDictionary) : BackgroundService
 {
     private readonly string QueueName = "[QueueReaderOne]";
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,7 +24,7 @@ public class QueueReaderOne(
                     "{QueueName} Processing inventory check for order Id: {OrderId}",
                     QueueName,
                     item.OrderId);
-                statusDictionary[item.OrderId] = JobStatus.Processing;
+                statusDictionary[item.OrderId] = new JobStatusDto(JobStatus.Processing);
                 await ProcessAsync(item);
                 logger.LogInformation(
                     "{QueueName} Inventory check completed for order Id: {OrderId}",
@@ -33,8 +33,8 @@ public class QueueReaderOne(
             }
             catch (Exception ex)
             {
-                statusDictionary[item.OrderId] = JobStatus.Failed;
-                logger.LogError(ex, "Failed to process");
+                statusDictionary[item.OrderId] = new JobStatusDto(Status: JobStatus.Failed, Message: ex.Message);
+                logger.LogError(exception: ex, message: "Failed to process");
             }
         }
     }
@@ -54,7 +54,9 @@ public class QueueReaderOne(
             if (response is null || response.AvailableQuantity < job.Quantity)
             {
                 logger.LogWarning("Product is out of stock! {@Response}", response);
-                statusDictionary[job.OrderId] = JobStatus.Failed;
+                statusDictionary[job.OrderId] = new JobStatusDto(
+                    Status: JobStatus.Failed,
+                    Message: $"Product is out of stock. Requested quantity: {job.Quantity}, Available quality: {response?.AvailableQuantity}");
                 return;
             }
 
@@ -64,7 +66,7 @@ public class QueueReaderOne(
                 item);
         }
 
-        statusDictionary[job.OrderId] = JobStatus.Completed;
+        statusDictionary[job.OrderId] = new JobStatusDto(Status: JobStatus.Completed, Message: "Inventory check completed");
         await Task.CompletedTask;
         return;
     }

@@ -21,7 +21,7 @@ public static class ServiceConfigurations
         services.AddHostedService<QueueReaderOne>();
         // services.AddHostedService<QueueReaderTwo>();
 
-        services.AddSingleton<ConcurrentDictionary<int, JobStatus>>();
+        services.AddSingleton<ConcurrentDictionary<int, JobStatusDto>>();
         services.AddScoped<IOrderService, OrderService>();
 
         return services;

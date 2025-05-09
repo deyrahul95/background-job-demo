@@ -39,7 +39,13 @@ public static class ApiEndpoints
             {
                 var status = await orderService.GetOrder(id);
                 await Task.Delay(10);
-                return Results.Ok(new { Id = id, Status = status.ToString() });
+
+                if (status is null)
+                {
+                    return Results.NotFound();
+                }
+
+                return Results.Ok(new { Id = id, Status = status?.Status.ToString(), status?.Message });
             })
             .WithTags(OrderTag);
 
