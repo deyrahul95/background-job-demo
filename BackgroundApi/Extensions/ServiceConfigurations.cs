@@ -10,6 +10,13 @@ public static class ServiceConfigurations
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
+        services.AddHttpClient<IInventoryClient, InventoryClient>(option =>
+        {
+            option.BaseAddress = new Uri("http://localhost:5178");
+            option.Timeout = TimeSpan.FromSeconds(1);
+            option.DefaultRequestHeaders.Add("ContentType", "application/json");
+        });
+
         services.AddSingleton<BackgroundQueueService<InventoryJob>>();
         services.AddHostedService<QueueReaderOne>();
         // services.AddHostedService<QueueReaderTwo>();

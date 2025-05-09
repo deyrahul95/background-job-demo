@@ -13,7 +13,7 @@ public class OrderService(
     {
         List<int> productIds = [];
 
-        for (int i = 0; i < itemCount; i++)
+        for (int i = 1; i <= itemCount; i++)
         {
             productIds.Add(i);
         }

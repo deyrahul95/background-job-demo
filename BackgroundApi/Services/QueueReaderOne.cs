@@ -1,12 +1,14 @@
 using System.Collections.Concurrent;
 using BackgroundApi.Enums;
 using BackgroundApi.Models;
+using BackgroundApi.Services.Interfaces;
 
 namespace BackgroundApi.Services;
 
 public class QueueReaderOne(
     ILogger<QueueReaderOne> logger,
     BackgroundQueueService<InventoryJob> queue,
+    IInventoryClient inventoryClient,
     ConcurrentDictionary<int, JobStatus> statusDictionary) : BackgroundService
 {
     private readonly string QueueName = "[QueueReaderOne]";
@@ -45,7 +47,17 @@ public class QueueReaderOne(
                 "{QueueName} Processing inventory check for product Id: {ProductId}",
                 QueueName,
                 item);
-            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+
+            var response = await inventoryClient.GetInventory(item);
+
+            if (response is null || response.AvailableQuantity < job.Quantity)
+            {
+                logger.LogWarning("Product is out of stock!");
+                statusDictionary[job.OrderId] = JobStatus.Failed;
+                return;
+            }
+
             logger.LogInformation(
                 "{QueueName} Inventory check completed for product Id: {ProductId}",
                 QueueName,
