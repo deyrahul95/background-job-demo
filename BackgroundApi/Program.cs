@@ -2,6 +2,8 @@ using BackgroundApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddApiServices();
 
 builder.Services.AddEndpointsApiExplorer();

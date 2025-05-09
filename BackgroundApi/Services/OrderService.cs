@@ -2,12 +2,15 @@ using System.Collections.Concurrent;
 using BackgroundApi.Enums;
 using BackgroundApi.Models;
 using BackgroundApi.Services.Interfaces;
+using Microsoft.Extensions.Primitives;
 
 namespace BackgroundApi.Services;
 
 public class OrderService(
+    IHttpContextAccessor httpContextAccessor,
     ConcurrentDictionary<int, JobStatus> statusDictionary,
-    BackgroundQueueService<InventoryJob> queue) : IOrderService
+    BackgroundQueueService<InventoryJob> queue,
+    ILogger<OrderService> logger) : IOrderService
 {
     public Task<JobStatus> CreateOrder(int itemCount)
     {
@@ -18,7 +21,16 @@ public class OrderService(
             productIds.Add(i);
         }
 
-        queue.Enqueue(new InventoryJob(OrderId: 100, ProductIds: productIds, Quantity: 5));
+        var context = httpContextAccessor.HttpContext;
+        StringValues token = string.Empty;
+
+        context?.Request.Headers.TryGetValue("Authorization", out token);
+
+        queue.Enqueue(new InventoryJob(
+            OrderId: 100,
+            ProductIds: productIds,
+            Quantity: 5,
+            Token: token));
 
         return Task.FromResult(JobStatus.Queue);
     }
@@ -26,6 +38,7 @@ public class OrderService(
     public Task<JobStatus> GetOrder(int id)
     {
         statusDictionary.TryGetValue(id, out var status);
+        logger.LogInformation("[OrderService] Order Id: {OrderId}, Status: {Status}", id, status);
         return Task.FromResult(status);
     }
 }

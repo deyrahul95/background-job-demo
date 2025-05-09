@@ -49,11 +49,11 @@ public class QueueReaderOne(
                 item);
             await Task.Delay(TimeSpan.FromMilliseconds(100));
 
-            var response = await inventoryClient.GetInventory(item);
+            var response = await inventoryClient.GetInventory(item, job.Token);
 
             if (response is null || response.AvailableQuantity < job.Quantity)
             {
-                logger.LogWarning("Product is out of stock!");
+                logger.LogWarning("Product is out of stock! {@Response}", response);
                 statusDictionary[job.OrderId] = JobStatus.Failed;
                 return;
             }

@@ -46,8 +46,13 @@ public static class ApiEndpoints
         // /api/inventory
         app.MapGet(
             GetInventory,
-            async (int id) =>
+            async (HttpRequest request, int id) =>
             {
+                if (request.Headers.TryGetValue("Authorization", out var authHeader) is false)
+                {
+                    return Results.Unauthorized();
+                }
+
                 await Task.Delay(TimeSpan.FromMilliseconds(300));
                 var random = Random.Shared.Next(1, 100);
                 return TypedResults.Ok(new GetInventoryResponse(ProductId: id, AvailableQuantity: random));
