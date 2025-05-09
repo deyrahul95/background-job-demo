@@ -7,21 +7,20 @@ public static class ApiEndpoints
 {
     private const string HealthTag = "Health";
     private const string QueueTag = "Queue";
-    private const string HealthRoute = "Health Check";
-    private const string AddToQueueRoute = "Add To Queue";
+    private const string HealthRoute = "/api/health";
+    private const string AddToQueueRoute = "/api/addToQueue/{count:int}";
 
     public static WebApplication AddApiEndpoints(this WebApplication app)
     {
         // /api/health
         app.MapGet(
-            "/api/health",
+            HealthRoute,
             () => Results.Ok(new { Message = "Api is healthy" }))
-            .WithTags(HealthTag)
-            .WithName(HealthRoute);
+            .WithTags(HealthTag);
 
         // /api/addToQueue
         app.MapPost(
-            "/api/addToQueue/{count:int}",
+            AddToQueueRoute,
             async ([FromServices] BackgroundQueueService<string> queue, int count) =>
             {
                 for (int i = 0; i < count; i++)
@@ -32,8 +31,7 @@ public static class ApiEndpoints
 
                 return Results.Accepted();
             })
-            .WithTags(QueueTag)
-            .WithName(AddToQueueRoute);
+            .WithTags(QueueTag);
 
         return app;
     }
