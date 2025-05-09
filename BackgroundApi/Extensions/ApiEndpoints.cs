@@ -11,7 +11,7 @@ public static class ApiEndpoints
     private const string InventoryTag = "Inventory";
     private const string HealthRoute = "/api/health";
     private const string CreateOrderRoute = "/api/orders";
-    private const string GetOrderRoute = "/api/orders/{id:int}";
+    private const string GetOrderStatusRoute = "/api/orders/{id:int}/status";
     private const string GetInventory = "/api/inventory/{id:int}";
 
     public static WebApplication AddApiEndpoints(this WebApplication app)
@@ -34,7 +34,7 @@ public static class ApiEndpoints
             .WithTags(OrderTag);
 
         app.MapGet(
-            GetOrderRoute,
+            GetOrderStatusRoute,
             async ([FromServices] IOrderService orderService, int id) =>
             {
                 var status = await orderService.GetOrder(id);

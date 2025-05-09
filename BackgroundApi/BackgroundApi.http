@@ -12,8 +12,8 @@ Authorization: {{Token}}
 10
 
 
-### Get Order
-GET {{BackgroundApi_HostAddress}}/api/orders/100
+### Get Order Status
+GET {{BackgroundApi_HostAddress}}/api/orders/100/status
 
 ### Get inventory
 GET {{BackgroundApi_HostAddress}}/api/inventory/100
