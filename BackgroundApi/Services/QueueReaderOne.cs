@@ -45,7 +45,7 @@ public class QueueReaderOne(
                 "{QueueName} Processing inventory check for product Id: {ProductId}",
                 QueueName,
                 item);
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
             logger.LogInformation(
                 "{QueueName} Inventory check completed for product Id: {ProductId}",
                 QueueName,
