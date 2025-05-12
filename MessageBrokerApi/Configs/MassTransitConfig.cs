@@ -13,6 +13,7 @@ public static class MassTransitConfig
         {
             x.AddConsumer<NotificationEmail<OrderCreatedEvent>>();
             x.AddConsumer<OrderCreatedNotifier>();
+            x.AddConsumer<ClearCartNotifier>();
 
             x.UsingRabbitMq((context, cfg) =>
             {
@@ -26,6 +27,7 @@ public static class MassTransitConfig
                 {
                     e.ConfigureConsumer<NotificationEmail<OrderCreatedEvent>>(context);
                     e.ConfigureConsumer<OrderCreatedNotifier>(context);
+                    e.ConfigureConsumer<ClearCartNotifier>(context);
                 });
             });
         });
