@@ -23,7 +23,11 @@ public static class ApiEndpoints
                 OrderCreatedTime: createdAt);
             await eventBus.PublishAsync(orderCreatedEvent);
 
-            return Results.Created(new Uri($"/api/orders/{orderId}"), orderId);
+            return Results.Created(new Uri($"/api/orders/{orderId}"), new
+            {
+                OrderId = orderId,
+                Message = "Order created successfully"
+            });
         });
 
         return app;

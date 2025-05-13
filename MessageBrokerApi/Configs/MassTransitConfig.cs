@@ -28,6 +28,10 @@ public static class MassTransitConfig
                 {
                     e.ConfigureConsumer<NotificationEmail<OrderCreatedEvent>>(context);
                     e.ConfigureConsumer<OrderCreatedNotifier>(context);
+                });
+
+                cfg.ReceiveEndpoint(MassTransitConstants.ClearCartQueueName, e =>
+                {
                     e.ConfigureConsumer<ClearCartNotifier>(context);
                 });
             });
