@@ -1,5 +1,5 @@
-using MassTransit;
 using MessageBrokerApi.Events;
+using MessageBrokerApi.Messaging;
 using MessageBrokerApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,8 +11,9 @@ public static class ApiEndpoints
     {
         // POST api/orders/
         app.MapPost("/api/orders", async (
-            [FromServices] IPublishEndpoint publishEndpoint,
-            [FromBody] CreateOrderRequest request) => {
+            [FromServices] IEventBus eventBus,
+            [FromBody] CreateOrderRequest request) =>
+        {
             int orderId = 100;
             DateTime createdAt = DateTime.UtcNow;
 
@@ -20,7 +21,7 @@ public static class ApiEndpoints
                 OrderId: orderId,
                 UserId: 2,
                 OrderCreatedTime: createdAt);
-            await publishEndpoint.Publish(orderCreatedEvent);
+            await eventBus.PublishAsync(orderCreatedEvent);
 
             return Results.Created(new Uri($"/api/orders/{orderId}"), orderId);
         });

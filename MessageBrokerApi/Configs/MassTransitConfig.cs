@@ -2,6 +2,7 @@ using MassTransit;
 using MessageBrokerApi.Constants;
 using MessageBrokerApi.Consumers;
 using MessageBrokerApi.Events;
+using MessageBrokerApi.Messaging;
 
 namespace MessageBrokerApi.Configs;
 
@@ -31,6 +32,8 @@ public static class MassTransitConfig
                 });
             });
         });
+
+        services.AddScoped<IEventBus, MassTransitEventBus>();
 
         return services;
     }
